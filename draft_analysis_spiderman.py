@@ -116,8 +116,6 @@ with st.sidebar:
     cmc_max = int((df["cmc_num"].max() or 10))
     cmc_range = st.slider("Plage CMC", min_value=0, max_value=max(10, cmc_max), value=(0, max(5, cmc_max)))
 
-    show_table = st.checkbox("Afficher le tableau des cartes filtrées", value=False)
-
 # Apply filters
 mask = (
     df["rarity"].isin(rarity_sel)
@@ -141,21 +139,22 @@ df_f = df[mask].copy()
 st.title("Draft Analysis – Marvel’s Spider-Man (SPM)")
 st.caption("Card data & images © Scryfall — https://scryfall.com/ — used under their API guidelines.")
 
-# Optional table
-if show_table:
-    st.subheader("Cartes filtrées")
-    st.dataframe(
-        df_f[["name","mana_cost","cmc","color_label","type_line","rarity","power","toughness","oracle_text"]],
-        use_container_width=True,
-        hide_index=True
-    )
+# ---------------------------
+# Table always visible at the top
+# ---------------------------
+st.subheader("📋 Liste des cartes filtrées")
+st.dataframe(
+    df_f[["name","mana_cost","cmc","color_label","type_line","rarity","power","toughness","oracle_text"]],
+    use_container_width=True,
+    hide_index=True
+)
 
 # ---------------------------
-# Small helper to render bar charts quickly
+# Helper to render small charts
 # ---------------------------
 def bar_count(series, title, xlabel, ylabel):
     counts = series.value_counts().sort_index()
-    fig, ax = plt.subplots(figsize=(4, 3))   # SMALL FIG
+    fig, ax = plt.subplots(figsize=(4, 3))
     counts.plot(kind="bar", ax=ax)
     ax.set_title(title)
     ax.set_xlabel(xlabel)
@@ -165,7 +164,7 @@ def bar_count(series, title, xlabel, ylabel):
     return fig
 
 # ---------------------------
-# Row 1: 3 small charts side-by-side
+# Row 1: 3 charts
 # ---------------------------
 col1, col2, col3 = st.columns(3)
 
@@ -208,7 +207,7 @@ with col3:
         st.pyplot(fig3, clear_figure=True)
 
 # ---------------------------
-# Row 2: 2 small charts side-by-side
+# Row 2: 2 charts
 # ---------------------------
 col4, col5 = st.columns(2)
 
@@ -219,7 +218,7 @@ with col4:
     if cmc_crea.empty:
         st.info("Aucune créature dans le filtre actuel.")
     else:
-        fig4, ax4 = plt.subplots(figsize=(5, 3.5))  # slightly wider for readability
+        fig4, ax4 = plt.subplots(figsize=(5, 3.5))
         cmc_crea.value_counts().sort_index().plot(kind="bar", ax=ax4)
         ax4.set_xlabel("CMC")
         ax4.set_ylabel("Nombre de créatures")
